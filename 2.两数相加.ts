@@ -26,50 +26,52 @@ function addTwoNumbers(
     l2: ListNode | null
 ): ListNode | null {
     if (l1 === null || l2 === null) return null;
-    if (l1.val === 0) return l2;
-    if (l2.val === 0) return l1;
-    let top: ListNode | null = null;
-    let curry = false;
-    let current: ListNode | null = null;
-    let left: ListNode | null = l1;
-    let right:ListNode | null = l2;
+    const top: ListNode = {
+        val: l1.val + l2.val,
+        next: null,
+    }
+    let current = top;
+    let carry = top.val > 9;
+    let left = l1.next;
+    let right = l2.next;
     while (left || right) {
-        const sum = (left?.val || 0) + (right?.val || 0);
-        if (current) {
-            current.next = {
-                val: sum,
-                next: null,
-            };
-            current = current.next;
-        } else {
-            current = {
-                val: sum,
-                next: null,
-            };
-            top = current;
+        current.next = {
+            val: (left?.val || 0) + (right?.val || 0),
+            next: null,
         }
-        if (curry) {
-            current.val += 1;
+        if (carry) {
+            current.val %= 10;
+            current.next.val += 1;
         }
-        curry = current.val > 9;
-        current.val %= 10;
-        if (left) {
-            left = left.next;
-        }
-        if (right) {
-            right = right.next;
-        }
-        if (left === null && right === null) {
-            if (curry) {
-                current.next = {
-                    val: 1,
-                    next: null
+        left = left?.next || null;
+        right = right?.next || null;
+        current = current.next;
+        carry = current.val > 9;
+        if ((left === null || right === null) && left !== right) {
+            current.next = left === null ? right : left;
+            while (carry) {
+                current.val %= 10;
+                if (current.next !== null) {
+                    current.next.val += 1;
+                } else {
+                    current.next = {
+                        val: 1,
+                        next: null,
+                    }
                 }
+                current = current.next;
+                carry = current.val > 9;
             }
-            break;
+            return top;
+        }
+    }
+    if (carry) {
+        current.val %= 10;
+        current.next = {
+            val: 1,
+            next: null,
         }
     }
     return top;
 }
 // @lc code=end
-
