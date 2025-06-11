@@ -16,9 +16,13 @@
  *     }
  * }
  */
-interface ListNode {
-    val: number;
-    next: null | ListNode;
+class ListNode {
+    val: number
+    next: ListNode | null
+    constructor(val?: number, next?: ListNode | null) {
+        this.val = (val === undefined ? 0 : val)
+        this.next = (next === undefined ? null : next)
+    }
 }
 
 function addTwoNumbers(
@@ -26,51 +30,28 @@ function addTwoNumbers(
     l2: ListNode | null
 ): ListNode | null {
     if (l1 === null || l2 === null) return null;
-    const top: ListNode = {
-        val: l1.val + l2.val,
-        next: null,
-    }
-    let current = top;
-    let carry = top.val > 9;
-    let left = l1.next;
-    let right = l2.next;
-    while (left || right) {
-        current.next = {
-            val: (left?.val || 0) + (right?.val || 0),
-            next: null,
-        }
-        if (carry) {
-            current.val %= 10;
-            current.next.val += 1;
-        }
-        left = left?.next || null;
-        right = right?.next || null;
-        current = current.next;
-        carry = current.val > 9;
-        if ((left === null || right === null) && left !== right) {
-            current.next = left === null ? right : left;
-            while (carry) {
-                current.val %= 10;
-                if (current.next !== null) {
-                    current.next.val += 1;
-                } else {
-                    current.next = {
-                        val: 1,
-                        next: null,
-                    }
-                }
-                current = current.next;
-                carry = current.val > 9;
+    const top = new ListNode(0);
+    let current: ListNode | null = top, carry = 0;
+    while (current !== null) {
+        const sum = (l1?.val || 0) + (l2?.val || 0) + carry;
+        current.val = sum % 10;
+        carry = Math.floor(sum / 10);
+        l1 = l1?.next || null;
+        l2 = l2?.next || null;
+        if (carry === 0) {
+            if (l1 === null) {
+                current.next = l2;
+                return top;
             }
-            return top;
+            if (l2 === null) {
+                current.next = l1;
+                return top;
+            }
         }
-    }
-    if (carry) {
-        current.val %= 10;
-        current.next = {
-            val: 1,
-            next: null,
+        if (l1 || l2 || carry) {
+            current.next = new ListNode(0);
         }
+        current = current.next;
     }
     return top;
 }
